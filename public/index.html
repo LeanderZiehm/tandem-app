@@ -71,7 +71,7 @@
                 });
 
                 if (response.ok) {
-                    alert('Verification code sent to your email.');
+                    // alert('Verification code sent to your email.');
                     document.getElementById('signUpForm').style.display = 'none';
                     document.getElementById('verifyForm').style.display = 'block';
                 } else {
@@ -107,7 +107,7 @@
 
                     showUserInfo(data.user);
                     document.getElementById('verifyForm').style.display = 'none';
-                    alert('Signed in successfully!');
+                    // alert('Signed in successfully!');
                 } else {
                     const error = await response.json();
                     alert('Error: ' + error.message);
