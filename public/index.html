@@ -18,7 +18,7 @@
 <body>
     <div id="userInfo" style="display: none;"></div>
 
-    <h2 style="font-family: Arial, sans-serif; font-size: 24px; color: #4CAF50; text-align: center; padding: 20px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #f1f1f1; max-width: 80%; margin: 20px auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); line-height: 1.5;">
+    <h2 id="welcomeMessag" style="display: none;   font-family: Arial, sans-serif; font-size: 24px; color: #4CAF50; text-align: center; padding: 20px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #f1f1f1; max-width: 80%; margin: 20px auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); line-height: 1.5;">
         Hello, you have signed in successfully. Right now this is the only thing you can do here. We are working on creating a language learning tandem app. We will notify you via email when we add new features. Have a nice day :)
     </h2>
     
@@ -131,7 +131,14 @@
             const user = JSON.parse(localStorage.getItem('user'));
             if (user) {
                 showUserInfo(user);
-                document.getElementById('signUpForm').style.display = 'none';
+                // document.getElementById('signUpForm').style.display = 'none';
+                document.getElementById('welcomeMessag').style.display = 'block';
+                
+            }else {
+                document.getElementById('signUpForm').style.display = 'block';
+                document.getElementById('verifyForm').style.display = 'none';
+                document.getElementById('welcomeMessag').style.display = 'none';
+          
             }
         }
     </script>
