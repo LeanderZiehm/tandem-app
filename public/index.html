@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up / Sign In</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #userInfo {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-weight: bold;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <div id="userInfo" style="display: none;"></div>
+
+    <h2 style="font-family: Arial, sans-serif; font-size: 24px; color: #4CAF50; text-align: center; padding: 20px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #f1f1f1; max-width: 80%; margin: 20px auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); line-height: 1.5;">
+        Hello, you have signed in successfully. Right now this is the only thing you can do here. We are working on creating a language learning tandem app. We will notify you via email when we add new features. Have a nice day :)
+    </h2>
+    
+    <div id="signUpForm" style="display: none;">
+        <label>First Name:</label>
+        <input type="text" id="firstName" placeholder="First name"><br>
+
+        <label>Last Name:</label>
+        <input type="text" id="lastName" placeholder="Last name"><br>
+
+        <label>Email:</label>
+        <input type="email" id="email" placeholder="Enter your email"><br>
+
+        <button onclick="handleSignUp()">Sign Up</button>
+    </div>
+
+    <div id="verifyForm" style="display: none;">
+        <label>Verification Code:</label>
+        <input type="text" id="verificationCode" placeholder="Enter the verification code"><br>
+
+        <button onclick="verifyCode()">Verify</button>
+    </div>
+
+    <script>
+        function generateDeviceHash() {
+            const userAgent = navigator.userAgent;
+            const timestamp = new Date().getTime();
+            const deviceHash = btoa(userAgent + timestamp);
+            localStorage.setItem('deviceHash', deviceHash);
+            return deviceHash;
+        }
+
+        async function handleSignUp() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            if (!firstName || !lastName || !email) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const deviceHash = generateDeviceHash();
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName, lastName, email, deviceHash })
+                });
+
+                if (response.ok) {
+                    alert('Verification code sent to your email.');
+                    document.getElementById('signUpForm').style.display = 'none';
+                    document.getElementById('verifyForm').style.display = 'block';
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + error.message);
+                }
+            } catch (err) {
+                console.error('Signup error:', err);
+                alert('Network error during signup.');
+            }
+        }
+
+        async function verifyCode() {
+            const verificationCode = document.getElementById('verificationCode').value.trim();
+            const deviceHash = localStorage.getItem('deviceHash');
+
+            if (!verificationCode || !deviceHash) {
+                alert('Verification code and device hash are required.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ verificationCode, deviceHash })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Save user info in localStorage
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    showUserInfo(data.user);
+                    document.getElementById('verifyForm').style.display = 'none';
+                    alert('Signed in successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + error.message);
+                }
+            } catch (err) {
+                console.error('Verification error:', err);
+                alert('Network error during verification.');
+            }
+        }
+
+        function showUserInfo(user) {
+            if (user && user.firstName) {
+                const userInfoDiv = document.getElementById('userInfo');
+                userInfoDiv.textContent = `Hello, ${user.firstName}!`;
+                userInfoDiv.style.display = 'block';
+            }
+        }
+
+        // Auto-load user if already signed in
+        window.onload = function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                showUserInfo(user);
+                document.getElementById('signUpForm').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
